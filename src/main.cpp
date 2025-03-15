@@ -25,6 +25,8 @@ void toggle_do_execute_main_fcn(); // custom function which is getting executed 
 
 
                                    // main runs as an own thread
+
+bool REMARK = false; //- remark flag for enigneering                                   
 int main() 
 { 
     DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you
@@ -56,7 +58,8 @@ enum RobotStep {
     ST_DRIVE, 
     ST_PULLUP, 
     ST_DROPDOWS
-}
+} robot_step = RobotStep::ST_OFF; // init step:
+
 
 enum RobotSubStep { 
     SUB_NONE,
@@ -66,11 +69,7 @@ enum RobotSubStep {
     SUB_LINE,
     SUB_PLATFORM,
     SUB_ROPE,
-}
-
-// init steps:
-    robot_state = RobotState::ST_OFF;
-    robot_substate = RobotSubStep::SUB_NONE;
+}robot_substep = RobotSubStep::SUB_NONE; // init step:
 // 
     // attach button fall function address to user button object
  
@@ -114,16 +113,22 @@ enum RobotSubStep {
  
             led1 = 1;
  
+            // read us sensor distance, only valid measurements will update us_distance_cm
+            const float us_distance_cm_candidate = us_sensor.read();
+            if (us_distance_cm_candidate > 0.0f)
+                us_distance_cm = us_distance_cm_candidate;
+
+
             // state machine
  
-switch (robot_state) {
+switch (robot_step) {
  
     case RobotStep::ST_OFF: {
         
         enable_motors = 0;
     
         // Transition: 
-        if (user_button.fall) {
+        if (mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
         printf("Status: OFF\n");
@@ -163,8 +168,11 @@ switch (robot_state) {
         // Transition: 
         if (REMARK) { 
             robot_step = RobotStep::ST_PULLUP;
+        if(REMARK){
+            robot_substep = RobotSubStep::SUB_PLATFORM;
         }
-    
+        }
+            
         printf("Status: DRIVE\n");
         break;
     }
@@ -193,100 +201,51 @@ switch (robot_state) {
     
         printf("Status: DROPDOWNS\n");
         break;
-    }
-    
-    
- 
+    }  
+     
     default: {
- 
-        // reset variables and objects
- 
-led1 = 0;
- 
-enable_motors = 0;
- 
-us_distance_cm = 0.0f;
- 
-motor_M3.setMotionPlanerPosition(0.0f);
- 
-motor_M3.setMotionPlanerVelocity(0.0f);
- 
-motor_M3.enableMotionPlanner();
- 
-robot_state = RobotState::INITIAL;
- 
+
         break; // do nothing
- 
     }
- 
-    // print to the serial terminal
- 
-printf("US Sensor in cm: %f, DC Motor Rotations: %f\n", us_distance_cm, motor_M3.getRotation());
- 
-}
- 
-        } else {
- 
-            // the following code block gets executed only once
- 
-            if (do_reset_all_once) {
- 
-                do_reset_all_once = false;
- 
-                // reset variables and objects
- 
-                led1 = 0;
- 
-            }
- 
+    }
+    }
+    else {
+        // the following code block gets executed only once
+        if (do_reset_all_once) {
+            do_reset_all_once = false;
+
+            // reset variables and objects
+            led1 = 0;
+            enable_motors = 0;
+            us_distance_cm = 0.0f;
+            motor_M3.setMotionPlanerPosition(0.0f);
+            motor_M3.setMotionPlanerVelocity(0.0f);
+            motor_M3.enableMotionPlanner();
+            robot_step = RobotStep::ST_INIT;
         }
- 
- 
-// flash_program_page
- 
-// read us sensor distance, only valid measurements will update us_distance_cm
- 
-const float us_distance_cm_candidate = us_sensor.read();
- 
-if (us_distance_cm_candidate > 0.0f)
- 
-    us_distance_cm = us_distance_cm_candidate;
- 
-        // toggling the user led
- 
-        user_led = !user_led;
- 
-        // read timer and make the main thread sleep for the remaining time span (non blocking)
- 
-        int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
- 
-        if (main_task_period_ms - main_task_elapsed_time_ms < 0)
- 
-            printf("Warning: Main task took longer than main_task_period_ms\n");
- 
-        else
- 
-            thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms);
- 
     }
  
+
+        // toggling the user led
+        user_led = !user_led;
+
+        // print to the serial terminal
+        printf("US Sensor in cm: %f, DC Motor Rotations: %f\n", us_distance_cm, motor_M3.getRotation());
+
+        // read timer and make the main thread sleep for the remaining time span (non blocking)
+        int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
+        if (main_task_period_ms - main_task_elapsed_time_ms < 0)
+            printf("Warning: Main task took longer than main_task_period_ms\n");
+        else
+            thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms);
+    }
 }
- 
+
 void toggle_do_execute_main_fcn()
- 
 {
- 
     // toggle do_execute_main_task if the button was pressed
- 
     do_execute_main_task = !do_execute_main_task;
- 
     // set do_reset_all_once to true if do_execute_main_task changed from false to true
- 
     if (do_execute_main_task)
- 
         do_reset_all_once = true;
- 
-}
- 
- 
- 
+} 
