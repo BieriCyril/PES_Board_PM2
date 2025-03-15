@@ -220,7 +220,7 @@ switch (robot_step) {
 
         // Print messages only if 1 second has elapsed since the last print
         if (print_timer.read_ms() >= 1000) {
-            printf("Status: ");
+            printf("Step: ");
             switch (robot_step) {
                 case RobotStep::ST_OFF:       printf("OFF\n"); break;
                 case RobotStep::ST_INIT:      printf("INIT\n"); break;
@@ -230,6 +230,18 @@ switch (robot_step) {
                 case RobotStep::ST_DROPDOWN:   printf("DROPDOWNS\n"); break;
                 default:                    printf("Unknown\n"); break;
             }
+            printf("Substep: ");
+            switch (robot_substep) {
+                case RobotSubStep::SUB_NONE:       printf("NONE\n"); break;
+                case RobotSubStep::SUB_START:      printf("START\n"); break;
+                case RobotSubStep::SUB_INTERMED:   printf("INTERMED\n"); break;
+                case RobotSubStep::SUB_END:        printf("END\n"); break;
+                case RobotSubStep::SUB_LINE:       printf("LINE\n"); break;
+                case RobotSubStep::SUB_PLATFORM:   printf("PLATFORM\n"); break;
+                case RobotSubStep::SUB_ROPE:       printf("ROPE\n"); break;
+                default:                         printf("Unknown Substep\n"); break;
+            }
+
             printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
             printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
             // Reset the print timer
@@ -240,7 +252,7 @@ switch (robot_step) {
         if (main_task_period_ms - main_task_elapsed_time_ms < 0)
             printf("Warning: Main task took longer than main_task_period_ms\n");
         else
-            thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms);
+            thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms); //- define cycle time by sleep
     }
 }
 
