@@ -43,7 +43,8 @@ int main()
     UltrasonicSensor us_sensor(PB_D3);
     DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
-
+    DigitalOut user_led(LED1);
+    DigitalOut led1(PB_9);
 
     //- parameterize objects:    
     mechanical_button.mode(PullUp);  
@@ -81,33 +82,12 @@ enum RobotSubStep {
  
     user_button.fall(&toggle_do_execute_main_fcn);
  
-    // while loop gets executed every main_task_period_ms milliseconds, this is a
- 
-    // simple approach to repeatedly execute main
- 
-    const int main_task_period_ms = 20; // define main task period time in ms e.g. 20 ms, there for
- 
-                                        // the main task will run 50 times per second
- 
-    Timer main_task_timer;              // create Timer object which we use to run the main task
- 
-                                        // every main_task_period_ms
- 
-    // led on nucleo board
- 
-    DigitalOut user_led(LED1);
- 
-    // additional led
- 
-    // create DigitalOut object to command extra led, you need to add an aditional resistor, e.g. 220...500 Ohm
- 
-    // a led has an anode (+) and a cathode (-), the cathode needs to be connected to ground via the resistor
- 
-    DigitalOut led1(PB_9);
- 
-    // start timer
- 
+    // Timers
+    Timer print_timer;
+    Timer main_task_timer;   
+    print_timer.start();
     main_task_timer.start();
+    const int main_task_period_ms = 20;
  
     // this loop will run forever
  
@@ -137,7 +117,6 @@ switch (robot_step) {
         if (mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
-        printf("Status: OFF\n");
         break;
     }
     
@@ -149,8 +128,6 @@ switch (robot_step) {
         if (mechanical_button.read()) {
             robot_step = RobotStep::ST_FIND;
         }
-    
-        printf("Status: INIT\n");
         break;
     }
     
@@ -162,8 +139,6 @@ switch (robot_step) {
         if (REMARK) { 
             robot_step = RobotStep::ST_DRIVE;
         }
-    
-        printf("Status: FIND\n");
         break;
     }
     
@@ -172,7 +147,7 @@ switch (robot_step) {
         enable_motors = 1;  
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
-            printf("Substep: Platform\n");
+
         }        
         // Transition: 
         if (REMARK) { 
@@ -183,8 +158,6 @@ switch (robot_step) {
             printf("Transition to Substep: Platform\n");
         }
         }
-            
-        printf("Status: DRIVE\n");
         break;
     }
     
@@ -196,8 +169,6 @@ switch (robot_step) {
         if (REMARK) { 
             robot_step = RobotStep::ST_DROPDOWN;
         }
-            
-        printf("Status: ST_PULLUP\n");
         break;
     }
     
@@ -209,8 +180,6 @@ switch (robot_step) {
         if (REMARK) { 
             robot_step = RobotStep::ST_OFF;
         }
-    
-        printf("Status: DROPDOWNS\n");
         break;
     }  
      
@@ -243,10 +212,23 @@ switch (robot_step) {
         // toggling the user led
         user_led = !user_led;
 
-        // print to the serial terminal
-        printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
-        printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
-
+        // Print messages only if 1 second has elapsed since the last print
+        if (print_timer.read_ms() >= 1000) {
+            printf("Status: ");
+            switch (robot_step) {
+                case RobotStep::ST_OFF:       printf("OFF\n"); break;
+                case RobotStep::ST_INIT:      printf("INIT\n"); break;
+                case RobotStep::ST_FIND:      printf("FIND\n"); break;
+                case RobotStep::ST_DRIVE:     printf("DRIVE\n"); break;
+                case RobotStep::ST_PULLUP:    printf("PULLUP\n"); break;
+                case RobotStep::ST_DROPDOWN:   printf("DROPDOWNS\n"); break;
+                default:                    printf("Unknown\n"); break;
+            }
+            printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
+            printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
+            // Reset the print timer
+            print_timer.reset();
+        }
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
         if (main_task_period_ms - main_task_elapsed_time_ms < 0)
