@@ -47,7 +47,7 @@ int main()
 
     //- parameterize objects:    
     mechanical_button.mode(PullUp);  
-        float us_distance_cm = 0.0f;   
+    float us_distance_cm = 0.0f;   
     //- actors
     motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
     motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
@@ -63,7 +63,7 @@ enum RobotStep {
     ST_FIND, 
     ST_DRIVE, 
     ST_PULLUP, 
-    ST_DROPDOWS
+    ST_DROPDOWN
 } robot_step = RobotStep::ST_OFF; // init step:
 
 
@@ -170,12 +170,17 @@ switch (robot_step) {
     case RobotStep::ST_DRIVE: {
         // Driving logic or activation of drive motors
         enable_motors = 1;  
-    
+        //- check substep:
+        if(robot_substep == RobotSubStep::SUB_PLATFORM){
+            printf("Substep: Platform\n");
+        }        
         // Transition: 
         if (REMARK) { 
             robot_step = RobotStep::ST_PULLUP;
+            printf("Transition to Step: Pullup\n");
         if(REMARK){
-            robot_substep = RobotSubStep::SUB_PLATFORM;
+            robot_substep = RobotSubStep::SUB_INTERMED;
+            printf("Transition to Substep: Platform\n");
         }
         }
             
@@ -189,14 +194,14 @@ switch (robot_step) {
     
         // Transition: 
         if (REMARK) { 
-            robot_step = RobotStep::ST_DROPDOWS;
+            robot_step = RobotStep::ST_DROPDOWN;
         }
             
         printf("Status: ST_PULLUP\n");
         break;
     }
     
-    case RobotStep::ST_DROPDOWS: {
+    case RobotStep::ST_DROPDOWN: {
         // Final action logic (e.g., dropping something down)
         enable_motors = 1;  
     
@@ -239,8 +244,8 @@ switch (robot_step) {
         user_led = !user_led;
 
         // print to the serial terminal
-        printf("DC Motor FRONT Rotations: %f\n", us_distance_cm, motor_front.getRotation());
-        printf("DC Motor BACK Rotations: %f\n", us_distance_cm, motor_back.getRotation());
+        printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
+        printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
 
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
