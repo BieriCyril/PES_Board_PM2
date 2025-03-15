@@ -11,6 +11,7 @@
 #include "UltrasonicSensor.h" 
 #include "DigitalIn.h" 
 #include "FastPWM.h" 
+#include "Servo.h"
  
 bool do_execute_main_task = false; // this variable will be toggled via the user button (blue button) and
                                    // decides whether to execute the main task or not
@@ -36,6 +37,9 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
+    float servo1_ang_min = 0.0325f;
+    float servo1_ang_max = 0.1250f;
+
 
     //- define objects:
     DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you need to specify the mode for proper usage, see below
@@ -43,6 +47,7 @@ int main()
     UltrasonicSensor us_sensor(PB_D3);
     DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    Servo servo1(PB_D0);
     DigitalOut user_led(LED1);
     DigitalOut led1(PB_9);
 
@@ -123,7 +128,8 @@ switch (robot_step) {
     case RobotStep::ST_INIT: {
         
         enable_motors = 1;
-    
+        if (!servo1.isEnabled())
+        servo1.enable();
         // Transition: 
         if (mechanical_button.read()) {
             robot_step = RobotStep::ST_FIND;
