@@ -26,30 +26,36 @@ void toggle_do_execute_main_fcn(); // custom function which is getting executed 
 
                                    // main runs as an own thread
 
-bool REMARK = false; //- remark flag for enigneering                                   
+bool REMARK = false; //- remark flag for enigneering       
+
+
 int main() 
 { 
-    DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you
-     // need to specify the mode for proper usage, see below
-     mechanical_button.mode(PullUp);    // sets pullup between pin and 3.3 V, so that there
-     // ultra sonic sensor
-     UltrasonicSensor us_sensor(PB_D3);
-     float us_distance_cm = 0.0f; 
+
+    //- definine constants:
+    const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
+    const float gear_ratio_ALL = 78.125f; // gear ratio 
+    const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
+
+    //- define objects:
+    DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you need to specify the mode for proper usage, see below
     DigitalOut enable_motors(PB_15); 
-    const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to 
-                                        // 6.0f V if you only use one battery pack
-     // motor M3
- 
-    const float gear_ratio_M3 = 78.125f; // gear ratio 
-    const float kn_M3 = 180.0f / 12.0f;  // motor constant [rpm/V] 
-    // it is assumed that only one motor is available, there fore 
-    // we use the pins from M1, so you can leave it connected to M1 
-    DCMotor motor_M3(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_M3, kn_M3, voltage_max); 
-    // enable the motion planner for smooth movement 
-    motor_M3.enableMotionPlanner(); 
-    // limit max. acceleration to half of the default acceleration 
-    motor_M3.setMaxAcceleration(motor_M3.getMaxAcceleration() * 0.5f); 
-    // set up states for state machine
+    UltrasonicSensor us_sensor(PB_D3);
+    DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+
+
+    //- parameterize objects:    
+    mechanical_button.mode(PullUp);  
+        float us_distance_cm = 0.0f;   
+    //- actors
+    motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
+    motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
+
+
+// set up states for state machine
  
 enum RobotStep { 
     ST_OFF,
@@ -218,9 +224,12 @@ switch (robot_step) {
             led1 = 0;
             enable_motors = 0;
             us_distance_cm = 0.0f;
-            motor_M3.setMotionPlanerPosition(0.0f);
-            motor_M3.setMotionPlanerVelocity(0.0f);
-            motor_M3.enableMotionPlanner();
+            motor_back.setMotionPlanerPosition(0.0f);
+            motor_back.setMotionPlanerVelocity(0.0f);
+            motor_back.enableMotionPlanner();
+            motor_front.setMotionPlanerPosition(0.0f);
+            motor_front.setMotionPlanerVelocity(0.0f);
+            motor_front.enableMotionPlanner();
             robot_step = RobotStep::ST_INIT;
         }
     }
@@ -230,7 +239,8 @@ switch (robot_step) {
         user_led = !user_led;
 
         // print to the serial terminal
-        printf("US Sensor in cm: %f, DC Motor Rotations: %f\n", us_distance_cm, motor_M3.getRotation());
+        printf("DC Motor FRONT Rotations: %f\n", us_distance_cm, motor_front.getRotation());
+        printf("DC Motor BACK Rotations: %f\n", us_distance_cm, motor_back.getRotation());
 
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
