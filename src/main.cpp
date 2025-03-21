@@ -84,7 +84,7 @@ int main()
     const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meters
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
-    void setMaxWheelVelocityRPS(float wheel_vel_max = 1.0f)
+    void setMaxWheelVelocityRPS(float wheel_vel_max = 1.0f);
 
 
 // set up states for state machine
