@@ -81,10 +81,13 @@ int main()
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
     float angle = 0.0f;
     const float d_wheel = 0.04f; // wheel radius in meters
-    const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meters
+    const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
+    const float Kp = 1.0f * 2.0f;
+    const float Kp_nl = 1.0f * 17.0f;
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
-    //void setMaxWheelVelocityRPS(float wheel_vel_max = 1.0f);
+    lineFollower.setMaxWheelVelocityRPS(1.0f);
+    lineFollower.setRotationalVelocityGain(Kp, Kp_nl);
 
 
 // set up states for state machine
