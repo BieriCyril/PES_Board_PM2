@@ -13,6 +13,8 @@
 #include "DigitalIn.h" 
 #include "FastPWM.h" 
 #include "Servo.h"
+#include "SensorBar.h"
+#include "LineFollower.h"
  
 bool do_execute_main_task = false; // this variable will be toggled via the user button (blue button) and
                                    // decides whether to execute the main task or not
@@ -68,13 +70,28 @@ int main()
     motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
     motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
 
+    //- Line following:
+
+    // SCL-PB8 Orange
+    // SDAPB9  Grau
+    // 5v   Rot
+    // gnd schwarz
+
+    const float bar_dist = 0.1f; // distance from wheel axis to leds on sensor bar / array in meters
+    SensorBar sensorBar(PB_9, PB_8, bar_dist);
+    float angle = 0.0f;
+    const float d_wheel = 0.04f; // wheel radius in meters
+    const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meters
+
+    LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
+
 
 // set up states for state machine
  
 enum RobotStep { 
     ST_OFF,
     ST_INIT, 
-    ST_FIND, 
+    ST_FOLLOW, 
     ST_DRIVE, 
     ST_PULLUP, 
     ST_DROPDOWN
@@ -140,20 +157,25 @@ switch (robot_step) {
         servo1.enable();
         // Transition: 
         if (mechanical_button.read()) {
-            robot_step = RobotStep::ST_FIND;
+            robot_step = RobotStep::ST_FOLLOW;
         }
         break;
     }
     
-    case RobotStep::ST_FIND: {
+    case RobotStep::ST_FOLLOW: {
         // Some logic for finding target or condition
+
+        //motors
         enable_motors = 1;  
-        double targetspeed;
-        targetspeed =3.0f;
-        motor_back.setRotation(targetspeed);
-        printf("Motor Back position: %f \n", motor_back.getRotation());
-        motor_front.setRotation(targetspeed);
-        printf("Motor Front position: %f \n", motor_front.getRotation());
+        // linefollower to motor:
+        motor_front.setVelocity(lineFollower.getRightWheelVelocity()); 
+        motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
+
+        //linesensor
+
+        // only update sensor bar angle if a led is triggered
+        if (sensorBar.isAnyLedActive())
+        angle = sensorBar.getAvgAngleRad();
     
         // Transition: 
         if (REMARK) { 
