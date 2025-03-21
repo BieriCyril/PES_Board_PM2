@@ -84,6 +84,7 @@ int main()
     const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meters
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
+    void setMaxWheelVelocityRPS(float wheel_vel_max = 1.0f)
 
 
 // set up states for state machine
@@ -176,7 +177,7 @@ switch (robot_step) {
         // only update sensor bar angle if a led is triggered
         if (sensorBar.isAnyLedActive())
         angle = sensorBar.getAvgAngleRad();
-    
+            
         // Transition: 
         if (REMARK) { 
             robot_step = RobotStep::ST_DRIVE;
@@ -260,7 +261,7 @@ switch (robot_step) {
             switch (robot_step) {
                 case RobotStep::ST_OFF:       printf("OFF\n"); break;
                 case RobotStep::ST_INIT:      printf("INIT\n"); break;
-                case RobotStep::ST_FIND:      printf("FIND\n"); break;
+                case RobotStep::ST_FOLLOW:      printf("FIND\n"); break;
                 case RobotStep::ST_DRIVE:     printf("DRIVE\n"); break;
                 case RobotStep::ST_PULLUP:    printf("PULLUP\n"); break;
                 case RobotStep::ST_DROPDOWN:   printf("DROPDOWNS\n"); break;
@@ -280,6 +281,7 @@ switch (robot_step) {
 
             printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
             printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
+            printf("ANGLE: %f\n", angle);
             // Reset the print timer
             print_timer.reset();
         }
