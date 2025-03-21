@@ -172,6 +172,7 @@ switch (robot_step) {
         motor_front.setVelocity(lineFollower.getRightWheelVelocity()); 
         motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
 
+        
         //linesensor
 
         // only update sensor bar angle if a led is triggered
@@ -282,6 +283,8 @@ switch (robot_step) {
             printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
             printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
             printf("ANGLE: %f\n", angle);
+            printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
+            printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             // Reset the print timer
             print_timer.reset();
         }
