@@ -47,6 +47,13 @@ int main()
     DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you need to specify the mode for proper usage, see below
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
+    
+    //DC Motoren kabel und Pin Belegung
+    //Encoder A -> gelb
+    //Encoder B -> grün
+    //M+ -> Braun
+    //M- -> Blau
+    //GND -> Weiss
     DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     Servo servo1(PB_D0);
