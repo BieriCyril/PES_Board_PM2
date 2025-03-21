@@ -43,14 +43,14 @@ int main()
 
 
     //- define objects:
-    DigitalIn mechanical_button(PC_5); // create DigitalIn object to evaluate mechanical button, you need to specify the mode for proper usage, see below
+    DigitalIn mechanical_button(PC_5); // belegung siehe foto cyril
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
     DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     Servo servo1(PB_D0);
     DigitalOut user_led(LED1);
-    DigitalOut led1(PB_9);
+    DigitalOut led1(PB_9); // belegung siehe foto cyril
 
     //- parameterize objects:    
     mechanical_button.mode(PullUp);  
@@ -141,6 +141,12 @@ switch (robot_step) {
     case RobotStep::ST_FIND: {
         // Some logic for finding target or condition
         enable_motors = 1;  
+        double targetspeed;
+        targetspeed =3.0f;
+        motor_back.setRotation(targetspeed);
+        printf("Motor Back position: %f \n", motor_back.getRotation());
+        motor_front.setRotation(targetspeed);
+        printf("Motor Front position: %f \n", motor_front.getRotation());
     
         // Transition: 
         if (REMARK) { 
