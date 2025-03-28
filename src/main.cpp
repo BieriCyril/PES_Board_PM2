@@ -48,8 +48,8 @@ int main()
 
 
     //- define objects:
-    DigitalIn mechanical_button(PC_5); // belegung siehe foto cyril
-    DigitalIn mechanical_RopeDet(PC_6); // belegung siehe foto cyril
+    DigitalIn mechanical_button(PC_6); // belegung siehe foto cyril
+    DigitalIn mechanical_RopeDet(PC_5); // belegung siehe foto cyril
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
     
@@ -67,6 +67,7 @@ int main()
 
     //- parameterize objects:    
     mechanical_button.mode(PullUp);  
+    mechanical_RopeDet.mode(PullUp);  
     float us_distance_cm = 0.0f;   
     //- actors
     //motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
@@ -144,6 +145,7 @@ enum RobotSubStep {
 
 bool edgeDetRope;
 bool outFallingEdgeRope;
+bool isInFinishRange= us_distance_cm < par_finishToleranceCM;
 
 // cycle edge
 outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
@@ -159,7 +161,7 @@ switch (robot_step) {
         enable_motors = 0;
     
         // Transition: 
-        if (mechanical_button.read()) {
+        if (!isInFinishRange){ // mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
         break;
@@ -171,7 +173,7 @@ switch (robot_step) {
         if (!servo1.isEnabled())
         servo1.enable();
         // Transition: 
-        if (mechanical_button.read()) {
+        if (true){ // old if (mechanical_button.read()) {
             robot_step = RobotStep::ST_FOLLOW;
         }
         break;
@@ -213,7 +215,7 @@ switch (robot_step) {
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
         }        
         // Transition: 
-        if (us_distance_cm < par_finishToleranceCM) { 
+        if (isInFinishRange) { 
             robot_step = RobotStep::ST_OFF;
             printf("Transition to Step: StOff\n");
             printf("Finished!!! ");
