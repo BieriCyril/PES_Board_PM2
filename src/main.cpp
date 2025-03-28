@@ -40,12 +40,16 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
-    float servo1_ang_min = 0.0325f;
-    float servo1_ang_max = 0.1250f;
+    const float servo1_ang_min = 0.0325f;
+    const float servo1_ang_max = 0.1250f;
+    const float par_finishToleranceCM = 15.0f; // cm
+    const float parSpeedStDrive = 1.0f;
+
 
 
     //- define objects:
     DigitalIn mechanical_button(PC_5); // belegung siehe foto cyril
+    DigitalIn mechanical_RopeDet(PC_6); // belegung siehe foto cyril
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
     
@@ -134,13 +138,20 @@ enum RobotSubStep {
             led1 = 1;
  
             // read us sensor distance, only valid measurements will update us_distance_cm
-            const float us_distance_cm_candidate = us_sensor.read();
-            if (us_distance_cm_candidate > 0.0f)
-                us_distance_cm = us_distance_cm_candidate;
+            const float us_distance_cm_periphery = us_sensor.read();
+            if (us_distance_cm_periphery > 0.0f)
+                us_distance_cm = us_distance_cm_periphery;
 
+bool edgeDetRope;
+bool outFallingEdgeRope;
 
-            // state machine
- 
+// cycle edge
+outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
+
+// copy edge 
+edgeDetRope = mechanical_RopeDet.read();
+
+// *******************STATE MACHINE**********************************************
 switch (robot_step) {
  
     case RobotStep::ST_OFF: {
@@ -172,8 +183,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(lineFollower.getRightWheelVelocity()); 
-        motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
+        motor_front.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
+        motor_back.setVelocity(lineFollower.getRightWheelVelocity());
 
         
         //linesensor
@@ -183,24 +194,31 @@ switch (robot_step) {
         angle = sensorBar.getAvgAngleRad();
             
         // Transition: 
-        if (REMARK) { 
+        if (outFallingEdgeRope) { 
             robot_step = RobotStep::ST_DRIVE;
+            printf("Transition to Step: StDrive\n");
+            printf("By Edge Detection");
         }
         break;
     }
     
     case RobotStep::ST_DRIVE: {
         // Driving logic or activation of drive motors
+        //motors
         enable_motors = 1;  
+        // linefollower to motor:
+        motor_front.setVelocity(parSpeedStDrive) ; 
+        motor_back.setVelocity(parSpeedStDrive);
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
-
         }        
         // Transition: 
-        if (REMARK) { 
-            robot_step = RobotStep::ST_PULLUP;
-            printf("Transition to Step: Pullup\n");
-        if(REMARK){
+        if (us_distance_cm < par_finishToleranceCM) { 
+            robot_step = RobotStep::ST_OFF;
+            printf("Transition to Step: StOff\n");
+            printf("Finished!!! ");
+        
+            if(REMARK){
             robot_substep = RobotSubStep::SUB_INTERMED;
             printf("Transition to Substep: Platform\n");
         }
@@ -288,6 +306,7 @@ switch (robot_step) {
             printf("ANGLE: %f\n", angle);
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
+            printf("ULTRASONIC POSITION %f\n", us_distance_cm);
             // Reset the print timer
             print_timer.reset();
         }
