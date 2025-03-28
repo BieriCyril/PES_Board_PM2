@@ -43,6 +43,7 @@ int main()
     const float servo1_ang_min = 0.0325f;
     const float servo1_ang_max = 0.1250f;
     const float par_finishToleranceCM = 15.0f; // cm
+    const float parSpeedStDrive = 1.0f;
 
 
 
@@ -141,9 +142,16 @@ enum RobotSubStep {
             if (us_distance_cm_periphery > 0.0f)
                 us_distance_cm = us_distance_cm_periphery;
 
+bool edgeDetRope;
+bool outFallingEdgeRope;
 
-            // state machine
- 
+// cycle edge
+outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
+
+// copy edge 
+edgeDetRope = mechanical_RopeDet.read();
+
+// *******************STATE MACHINE**********************************************
 switch (robot_step) {
  
     case RobotStep::ST_OFF: {
@@ -186,15 +194,21 @@ switch (robot_step) {
         angle = sensorBar.getAvgAngleRad();
             
         // Transition: 
-        if (REMARK) { 
+        if (outFallingEdgeRope) { 
             robot_step = RobotStep::ST_DRIVE;
+            printf("Transition to Step: StDrive\n");
+            printf("By Edge Detection");
         }
         break;
     }
     
     case RobotStep::ST_DRIVE: {
         // Driving logic or activation of drive motors
+        //motors
         enable_motors = 1;  
+        // linefollower to motor:
+        motor_front.setVelocity(parSpeedStDrive) ; 
+        motor_back.setVelocity(parSpeedStDrive);
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
         }        
