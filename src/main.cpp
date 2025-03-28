@@ -139,9 +139,9 @@ enum RobotSubStep {
             led1 = 1;
  
             // read us sensor distance, only valid measurements will update us_distance_cm
-            const float us_distance_cm_periphery = us_sensor.read();
-            if (us_distance_cm_periphery > 0.0f)
-                us_distance_cm = us_distance_cm_periphery;
+            //const float us_distance_cm_periphery = us_sensor.read();
+            //if (us_distance_cm_periphery > 0.0f)
+              //  us_distance_cm = us_distance_cm_periphery;
 
 bool edgeDetRope;
 bool outFallingEdgeRope;
@@ -161,7 +161,7 @@ switch (robot_step) {
         enable_motors = 0;
     
         // Transition: 
-        if (!isInFinishRange){ // mechanical_button.read()) {
+        if (true){ // mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
         break;
@@ -185,8 +185,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
-        motor_back.setVelocity(lineFollower.getRightWheelVelocity());
+        motor_back.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
+        motor_front.setVelocity(lineFollower.getRightWheelVelocity());
 
         
         //linesensor
@@ -209,13 +209,13 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(parSpeedStDrive) ; 
+        motor_front.setVelocity(parSpeedStDrive); 
         motor_back.setVelocity(parSpeedStDrive);
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
         }        
         // Transition: 
-        if (isInFinishRange) { 
+        if (false) { 
             robot_step = RobotStep::ST_OFF;
             printf("Transition to Step: StOff\n");
             printf("Finished!!! ");
