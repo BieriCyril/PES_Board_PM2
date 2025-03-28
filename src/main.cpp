@@ -183,8 +183,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(lineFollower.getRightWheelVelocity()) ; 
-        motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
+        motor_front.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
+        motor_back.setVelocity(lineFollower.getRightWheelVelocity());
 
         
         //linesensor
