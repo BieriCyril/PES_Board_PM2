@@ -40,8 +40,10 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
-    float servo1_ang_min = 0.0325f;
-    float servo1_ang_max = 0.1250f;
+    const float servo1_ang_min = 0.0325f;
+    const float servo1_ang_max = 0.1250f;
+    const float par_finishToleranceCM = 15.0f // cm
+
 
 
     //- define objects:
