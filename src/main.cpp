@@ -126,7 +126,7 @@ enum RobotSubStep {
     Timer main_task_timer;   
     print_timer.start();
     main_task_timer.start();
-    const int main_task_period_ms = 40;
+    const int main_task_period_ms = 20;
  
     // this loop will run forever
  
@@ -309,12 +309,13 @@ switch (robot_step) {
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("ULTRASONIC POSITION %f\n", us_distance_cm);
+            printf("Cycle Time: %d", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
         }
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
-        if (main_task_period_ms - main_task_elapsed_time_ms < 0)
+        if (main_task_period_ms < main_task_elapsed_time_ms)
             printf("Warning: Main task took longer than main_task_period_ms\n");
         else
             thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms); //- define cycle time by sleep
