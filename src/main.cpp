@@ -55,7 +55,7 @@ int main()
     //M+ -> Braun
     //M- -> Blau
     //GND -> Weiss
-    DCMotor motor_front(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    DCMotor motor_front(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     Servo servo1(PB_D0);
     DigitalOut user_led(LED1);
@@ -172,7 +172,7 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(lineFollower.getRightWheelVelocity()) ; 
+        motor_front.setVelocity(lineFollower.getRightWheelVelocity()); 
         motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
 
         
