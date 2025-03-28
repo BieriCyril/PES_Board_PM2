@@ -42,12 +42,13 @@ int main()
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float servo1_ang_min = 0.0325f;
     const float servo1_ang_max = 0.1250f;
-    const float par_finishToleranceCM = 15.0f // cm
+    const float par_finishToleranceCM = 15.0f; // cm
 
 
 
     //- define objects:
     DigitalIn mechanical_button(PC_5); // belegung siehe foto cyril
+    DigitalIn mechanical_RopeDet(PC_6); // belegung siehe foto cyril
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
     
@@ -136,9 +137,9 @@ enum RobotSubStep {
             led1 = 1;
  
             // read us sensor distance, only valid measurements will update us_distance_cm
-            const float us_distance_cm_candidate = us_sensor.read();
-            if (us_distance_cm_candidate > 0.0f)
-                us_distance_cm = us_distance_cm_candidate;
+            const float us_distance_cm_periphery = us_sensor.read();
+            if (us_distance_cm_periphery > 0.0f)
+                us_distance_cm = us_distance_cm_periphery;
 
 
             // state machine
@@ -196,13 +197,14 @@ switch (robot_step) {
         enable_motors = 1;  
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
-
         }        
         // Transition: 
-        if (REMARK) { 
-            robot_step = RobotStep::ST_PULLUP;
-            printf("Transition to Step: Pullup\n");
-        if(REMARK){
+        if (us_distance_cm < par_finishToleranceCM) { 
+            robot_step = RobotStep::ST_OFF;
+            printf("Transition to Step: StOff\n");
+            printf("Finished!!! ");
+        
+            if(REMARK){
             robot_substep = RobotSubStep::SUB_INTERMED;
             printf("Transition to Substep: Platform\n");
         }
