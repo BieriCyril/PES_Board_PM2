@@ -71,9 +71,9 @@ int main()
     float us_distance_cm = 0.0f;   
     //- actors
     //motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
+    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.6f); // limit max. acceleration to half of the default acceleration 
     //motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
+    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.6f); // limit max. acceleration to half of the default acceleration   
 
     //- Line following:
 
@@ -87,7 +87,7 @@ int main()
     float angle = 0.0f;
     const float d_wheel = 0.04f; // wheel radius in meters
     const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
-    const float Kp = 1.0f * 2.0f;
+    const float Kp = 1.0f * 15.0f;
     const float Kp_nl = 1.0f * 17.0f;
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
@@ -126,7 +126,7 @@ enum RobotSubStep {
     Timer main_task_timer;   
     print_timer.start();
     main_task_timer.start();
-    const int main_task_period_ms = 20;
+    const int main_task_period_ms = 40;
  
     // this loop will run forever
  
