@@ -65,9 +65,9 @@ int main()
     mechanical_button.mode(PullUp);  
     float us_distance_cm = 0.0f;   
     //- actors
-    motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    //motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
     motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
-    motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    //motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
     motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
 
     //- Line following:
@@ -172,7 +172,7 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(lineFollower.getRightWheelVelocity()); 
+        motor_front.setVelocity(lineFollower.getRightWheelVelocity()) ; 
         motor_back.setVelocity(lineFollower.getLeftWheelVelocity());
 
         
@@ -247,10 +247,10 @@ switch (robot_step) {
             us_distance_cm = 0.0f;
             motor_back.setMotionPlanerPosition(0.0f);
             motor_back.setMotionPlanerVelocity(0.0f);
-            motor_back.enableMotionPlanner();
+            //motor_back.enableMotionPlanner();
             motor_front.setMotionPlanerPosition(0.0f);
             motor_front.setMotionPlanerVelocity(0.0f);
-            motor_front.enableMotionPlanner();
+            //motor_front.enableMotionPlanner();
             robot_step = RobotStep::ST_INIT;
         }
     }
