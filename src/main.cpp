@@ -71,9 +71,9 @@ int main()
     float us_distance_cm = 0.0f;   
     //- actors
     //motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.6f); // limit max. acceleration to half of the default acceleration 
+    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
     //motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.6f); // limit max. acceleration to half of the default acceleration   
+    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
 
     //- Line following:
 
@@ -87,7 +87,7 @@ int main()
     float angle = 0.0f;
     const float d_wheel = 0.04f; // wheel radius in meters
     const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
-    const float Kp = 1.0f * 15.0f;
+    const float Kp = 1.0f * 2.0f;
     const float Kp_nl = 1.0f * 17.0f;
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
@@ -126,7 +126,7 @@ enum RobotSubStep {
     Timer main_task_timer;   
     print_timer.start();
     main_task_timer.start();
-    const int main_task_period_ms = 40;
+    const int main_task_period_ms = 20;
  
     // this loop will run forever
  
@@ -309,12 +309,13 @@ switch (robot_step) {
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("ULTRASONIC POSITION %f\n", us_distance_cm);
+            printf("Cycle Time: %d", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
         }
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
-        if (main_task_period_ms - main_task_elapsed_time_ms < 0)
+        if (main_task_period_ms < main_task_elapsed_time_ms)
             printf("Warning: Main task took longer than main_task_period_ms\n");
         else
             thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms); //- define cycle time by sleep
