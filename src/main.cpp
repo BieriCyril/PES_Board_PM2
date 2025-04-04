@@ -99,11 +99,14 @@ int main()
     bool reqMoveServoDown;
     bool reqMoveServoUp;
     Servo servo1(PB_D0);
+    const float servotar = 0.5f;
 
         // minimal pulse width and maximal pulse width obtained from the servo calibration process
     // futuba HS-5065MG
-    float servo1_ang_min = 0.0150f; // carefull, these values might differ from servo to servo
-    float servo1_ang_max = 0.1150f;
+    const float servo1_ang_min = 0.0150f; // carefull, these values might differ from servo to servo
+    const float servo1_ang_max = 0.1150f;
+
+
 
 
  
@@ -263,7 +266,7 @@ switch (robot_step) {
         // Backward pull-up logic
         enable_motors = 0;   //-motoroff!
         reqMoveServoUp = true;
-        float servo_input = 1.0f;
+        float servo_input = servotar;
         tmrPullup.start();
         // Transition: 
         if (tmrPullup.read_ms() >= pulluptime) { 
