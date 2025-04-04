@@ -40,10 +40,11 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
-    const float servo1_ang_min = 0.0325f;
-    const float servo1_ang_max = 0.1250f;
     const float par_finishToleranceCM = 15.0f; // cm
     const float parSpeedStDrive = 1.0f;
+    const int printcycle = 1000;
+    const int pulluptime = 1000;
+    const bool servocalibmode = true;
 
 
 
@@ -61,7 +62,6 @@ int main()
     //GND -> Weiss
     DCMotor motor_front(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
-    Servo servo1(PB_D0);
     DigitalOut user_led(LED1);
     DigitalOut led1(PB_9); // belegung siehe foto cyril
 
@@ -95,6 +95,29 @@ int main()
     lineFollower.setRotationalVelocityGain(Kp, Kp_nl);
 
 
+    //- Servo
+    bool reqMoveServoDown;
+    bool reqMoveServoUp;
+    Servo servo1(PB_D0);
+
+        // minimal pulse width and maximal pulse width obtained from the servo calibration process
+    // futuba HS-5065MG
+    float servo1_ang_min = 0.0150f; // carefull, these values might differ from servo to servo
+    float servo1_ang_max = 0.1150f;
+
+
+ 
+    if (servocalibmode) {
+    servo1.calibratePulseMinMax(0, 1);
+    } else {
+    //servo.setPulseWidth: before calibration (0,1) -> (min pwm, max pwm)
+    servo1.calibratePulseMinMax(servo1_ang_min, servo1_ang_max);
+    }
+
+    servo1.setMaxAcceleration(0.3f);
+    float servo_input = 0.0f;
+
+
 // set up states for state machine
  
 enum RobotStep { 
@@ -124,6 +147,7 @@ enum RobotSubStep {
     // Timers
     Timer print_timer;
     Timer main_task_timer;   
+    Timer tmrPullup;   // delay to pullup the linefollower
     print_timer.start();
     main_task_timer.start();
     const int main_task_period_ms = 20;
@@ -153,12 +177,18 @@ outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
 // copy edge 
 edgeDetRope = mechanical_RopeDet.read();
 
+//- servo:
+servo1.setPulseWidth(servo_input);
+if (!servo1.isEnabled())
+servo1.enable();
+
 // *******************STATE MACHINE**********************************************
 switch (robot_step) {
  
     case RobotStep::ST_OFF: {
         
         enable_motors = 0;
+        float servo_input = 0.0f; 
     
         // Transition: 
         if (!isInFinishRange){ // mechanical_button.read()) {
@@ -174,6 +204,7 @@ switch (robot_step) {
         servo1.enable();
         // Transition: 
         if (true){ // old if (mechanical_button.read()) {
+            printf("Transition to Step: STFollow\n");
             robot_step = RobotStep::ST_FOLLOW;
         }
         break;
@@ -197,8 +228,8 @@ switch (robot_step) {
             
         // Transition: 
         if (outFallingEdgeRope) { 
-            robot_step = RobotStep::ST_DRIVE;
-            printf("Transition to Step: StDrive\n");
+            robot_step = RobotStep::ST_PULLUP;
+            printf("Transition to Step: ST_PULLUP\n");
             printf("By Edge Detection");
         }
         break;
@@ -230,11 +261,17 @@ switch (robot_step) {
     
     case RobotStep::ST_PULLUP: {
         // Backward pull-up logic
-        enable_motors = 1;  
-    
+        enable_motors = 0;   //-motoroff!
+        reqMoveServoUp = true;
+        float servo_input = 1.0f;
+        tmrPullup.start();
         // Transition: 
-        if (REMARK) { 
-            robot_step = RobotStep::ST_DROPDOWN;
+        if (tmrPullup.read_ms() >= pulluptime) { 
+            robot_step = RobotStep::ST_DRIVE;
+            printf("Transition to Step: StDrive\n");
+            printf("Pulluptimerdone\n");  
+            tmrPullup.reset();
+            reqMoveServoUp = false;
         }
         break;
     }
@@ -272,6 +309,9 @@ switch (robot_step) {
             motor_front.setMotionPlanerVelocity(0.0f);
             //motor_front.enableMotionPlanner();
             robot_step = RobotStep::ST_INIT;
+            reqMoveServoDown  = false;
+            reqMoveServoUp = false;
+            servo1.disable();
         }
     }
  
@@ -280,7 +320,7 @@ switch (robot_step) {
         user_led = !user_led;
 
         // Print messages only if 1 second has elapsed since the last print
-        if (print_timer.read_ms() >= 1000) {
+        if (print_timer.read_ms() >= printcycle) {
             printf("Step: ");
             switch (robot_step) {
                 case RobotStep::ST_OFF:       printf("OFF\n"); break;
