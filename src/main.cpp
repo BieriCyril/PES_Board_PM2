@@ -348,7 +348,8 @@ switch (robot_step) {
             printf("ANGLE: %f\n", angle);
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
-            printf("ULTRASONIC POSITION %f\n", us_distance_cm);
+            printf("Ultrasonic Position %f\n", us_distance_cm);
+            printf("Servo Setpoint %d\n", servo_input);
             printf("Cycle Time: %d", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
