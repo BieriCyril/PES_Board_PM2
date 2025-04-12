@@ -60,8 +60,8 @@ int main()
     //M+ -> Braun
     //M- -> Blau
     //GND -> Weiss
-    DCMotor motor_front(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
-    DCMotor motor_back(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    DCMotor motor_right(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    DCMotor motor_left(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DigitalOut user_led(LED1);
     DigitalOut led1(PB_9); // belegung siehe foto cyril
 
@@ -70,10 +70,10 @@ int main()
     mechanical_RopeDet.mode(PullUp);  
     float us_distance_cm = 0.0f;   
     //- actors
-    //motor_front.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_front.setMaxAcceleration(motor_front.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
-    //motor_back.enableMotionPlanner(); // enable the motion planner for smooth movement 
-    motor_back.setMaxAcceleration(motor_back.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
+    //motor_right.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    motor_right.setMaxAcceleration(motor_right.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
+    //motor_left.enableMotionPlanner(); // enable the motion planner for smooth movement 
+    motor_left.setMaxAcceleration(motor_left.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
 
     //- Line following:
 
@@ -90,7 +90,7 @@ int main()
     const float Kp = 1.0f * 3.0f;
     const float Kp_nl = 1.0f * 17.0f;
 
-    LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_front.getMaxPhysicalVelocity());
+    LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_right.getMaxPhysicalVelocity());
     lineFollower.setMaxWheelVelocityRPS(1.0f);
     lineFollower.setRotationalVelocityGain(Kp, Kp_nl);
 
@@ -220,8 +220,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_back.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
-        motor_front.setVelocity(lineFollower.getRightWheelVelocity());
+        motor_left.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
+        motor_right.setVelocity(lineFollower.getRightWheelVelocity());
 
         
         //linesensor
@@ -244,8 +244,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_front.setVelocity(parSpeedStDrive); 
-        motor_back.setVelocity(parSpeedStDrive);
+        motor_right.setVelocity(parSpeedStDrive); 
+        motor_left.setVelocity(parSpeedStDrive);
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
         }        
@@ -306,12 +306,12 @@ switch (robot_step) {
             led1 = 0;
             enable_motors = 0;
             us_distance_cm = 0.0f;
-            motor_back.setMotionPlanerPosition(0.0f);
-            motor_back.setMotionPlanerVelocity(0.0f);
-            //motor_back.enableMotionPlanner();
-            motor_front.setMotionPlanerPosition(0.0f);
-            motor_front.setMotionPlanerVelocity(0.0f);
-            //motor_front.enableMotionPlanner();
+            motor_left.setMotionPlanerPosition(0.0f);
+            motor_left.setMotionPlanerVelocity(0.0f);
+            //motor_left.enableMotionPlanner();
+            motor_right.setMotionPlanerPosition(0.0f);
+            motor_right.setMotionPlanerVelocity(0.0f);
+            //motor_right.enableMotionPlanner();
             robot_step = RobotStep::ST_INIT;
             reqMoveServoDown  = false;
             reqMoveServoUp = false;
@@ -347,8 +347,8 @@ switch (robot_step) {
                 default:                         printf("Unknown Substep\n"); break;
             }
 
-            printf("DC Motor FRONT Rotations: %f\n", motor_front.getRotation());
-            printf("DC Motor BACK Rotations: %f\n", motor_back.getRotation());
+            printf("DC Motor RIGHT Rotations: %f\n", motor_right.getRotation());
+            printf("DC Motor LEFT Rotations: %f\n", motor_left.getRotation());
             printf("ANGLE: %f\n", angle);
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
