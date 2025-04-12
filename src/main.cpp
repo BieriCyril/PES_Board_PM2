@@ -48,6 +48,8 @@ int main()
 
     const float servoupPos = 0.0f;
     const float servoDownPos = 0.1f;
+    bool isfalse = false;
+    bool istrue = true; 
 
 
 
@@ -158,16 +160,12 @@ enum RobotSubStep {
                 us_distance_cm = us_distance_cm_periphery;
             }            
 
-bool edgeDetRope;
-bool outFallingEdgeRope;
-bool isfalse = false;
 bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) & (us_distance_cm > 1.0f) and isfalse;
 
-// cycle edge
-outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
-
-// copy edge 
-edgeDetRope = mechanical_RopeDet.read();
+static bool prevRopeDet = true; // or initialize to `mechanical_RopeDet.read();`
+bool currentRopeDet = mechanical_RopeDet.read();
+bool outFallingEdgeRope = (prevRopeDet == 1 && currentRopeDet == 0);
+prevRopeDet = currentRopeDet; // store for next cycle
 
 //- servo:
 servo1.setPulseWidth(servo_input);
