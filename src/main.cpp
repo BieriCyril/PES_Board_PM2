@@ -235,6 +235,8 @@ switch (robot_step) {
         // linefollower to motor:
         motor_right.setVelocity(parSpeedStDrive); 
         motor_left.setVelocity(parSpeedStDrive);
+        //- servo:
+        servo_input = servoupPos;
         //- check substep:
         if(robot_substep == RobotSubStep::SUB_PLATFORM){
         }        
