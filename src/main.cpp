@@ -341,13 +341,13 @@ switch (robot_step) {
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("Ultrasonic Position %f\n", us_distance_cm);
             printf("Servo Setpoint %f\n", servo_input);
-            printf("Cycle Time: %d", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
+            printf("Cycle Time: %lld", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
         }
         // read timer and make the main thread sleep for the remaining time span (non blocking)
         int main_task_elapsed_time_ms = duration_cast<milliseconds>(main_task_timer.elapsed_time()).count();
-        if (main_task_period_ms < main_task_elapsed_time_ms)
+        if (main_task_period_ms - main_task_elapsed_time_ms < 0)
             printf("Warning: Main task took longer than main_task_period_ms\n");
         else
             thread_sleep_for(main_task_period_ms - main_task_elapsed_time_ms); //- define cycle time by sleep
