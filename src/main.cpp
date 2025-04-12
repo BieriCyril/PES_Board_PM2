@@ -42,6 +42,7 @@ int main()
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float par_finishToleranceCM = 15.0f; // cm
     const float parSpeedStDrive = 0.1f;
+    const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000;
     const int pulluptime = 1000;
     const bool servocalibmode = true;
@@ -91,7 +92,7 @@ int main()
     const float Kp_nl = 1.0f * 17.0f;
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_right.getMaxPhysicalVelocity());
-    lineFollower.setMaxWheelVelocityRPS(parSpeedStDrive);
+    lineFollower.setMaxWheelVelocityRPS(parSpeedStFollow);
     lineFollower.setRotationalVelocityGain(Kp, Kp_nl);
 
 
