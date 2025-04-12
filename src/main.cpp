@@ -162,7 +162,7 @@ enum RobotSubStep {
 
 bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) & (us_distance_cm > 1.0f) and isfalse;
 
-static bool prevRopeDet = true; // or initialize to `mechanical_RopeDet.read();`
+static bool prevRopeDet = mechanical_RopeDet.read(); //- init by sensor value
 bool currentRopeDet = mechanical_RopeDet.read();
 bool outFallingEdgeRope = (prevRopeDet == 1 && currentRopeDet == 0);
 prevRopeDet = currentRopeDet; // store for next cycle
