@@ -45,7 +45,6 @@ int main()
     const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000;
     const int pulluptime = 1000;
-    const bool servocalibmode = true;
 
     const float servoupPos = 0.0f;
     const float servoDownPos = 0.1f;
@@ -100,30 +99,15 @@ int main()
 
 
     //- Servo
-    bool reqMoveServoDown;
-    bool reqMoveServoUp;
     Servo servo1(PB_D0);
-
-        // minimal pulse width and maximal pulse width obtained from the servo calibration process
-    // futuba HS-5065MG
+//- teached values:
     const float servo1_ang_min = 0.035f; // carefull, these values might differ from servo to servo
     const float servo1_ang_max = 0.120f;
-
-
-
-
- 
-    if (servocalibmode) {
-    servo1.calibratePulseMinMax(0, 1);
-    } else {
-    //servo.setPulseWidth: before calibration (0,1) -> (min pwm, max pwm)
+    //-
     servo1.calibratePulseMinMax(servo1_ang_min, servo1_ang_max);
-    }
-
     servo1.setMaxAcceleration(0.3f);
+    //- initialisze up position
     float servo_input = servoupPos;
-
-
 // set up states for state machine
  
 enum RobotStep { 
@@ -271,7 +255,6 @@ switch (robot_step) {
     case RobotStep::ST_PULLUP: {
         // Backward pull-up logic
         enable_motors = 0;   //-motoroff!
-        reqMoveServoUp = true;
         servo_input = servoupPos;
         tmrPullup.start();
         // Transition: 
@@ -280,7 +263,6 @@ switch (robot_step) {
             printf("Transition to Step: StDrive\n");
             printf("Pulluptimerdone\n");  
             tmrPullup.reset();
-            reqMoveServoUp = false;
         }
         break;
     }
@@ -318,8 +300,6 @@ switch (robot_step) {
             motor_right.setMotionPlanerVelocity(0.0f);
             //motor_right.enableMotionPlanner();
             robot_step = RobotStep::ST_INIT;
-            reqMoveServoDown  = false;
-            reqMoveServoUp = false;
             servo1.disable();
         }
     }
