@@ -160,11 +160,11 @@ enum RobotSubStep {
                 us_distance_cm = us_distance_cm_periphery;
             }            
 
-bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) & (us_distance_cm > 1.0f) and isfalse;
+bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) and (us_distance_cm > 1.0f) and isfalse;
 
 static bool prevRopeDet = mechanical_RopeDet.read(); //- init by sensor value
 bool currentRopeDet = mechanical_RopeDet.read();
-bool outFallingEdgeRope = (prevRopeDet == 1 && currentRopeDet == 0);
+bool outFallingEdgeRope = (prevRopeDet == 1 and currentRopeDet == 0);
 prevRopeDet = currentRopeDet; // store for next cycle
 
 //- servo:
