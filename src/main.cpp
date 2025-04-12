@@ -154,8 +154,9 @@ enum RobotSubStep {
  
             // read us sensor distance, only valid measurements will update us_distance_cm
             const float us_distance_cm_periphery = us_sensor.read();
-            (us_distance_cm_periphery > 0.0f);
-            us_distance_cm = us_distance_cm_periphery;
+            if (us_distance_cm_periphery > 0.0f) {
+                us_distance_cm = us_distance_cm_periphery;
+            }            
 
 bool edgeDetRope;
 bool outFallingEdgeRope;
