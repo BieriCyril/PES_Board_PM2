@@ -47,8 +47,8 @@ int main()
     const int pulluptime = 1000;
     const bool servocalibmode = true;
 
-    const float servoupPos 0.0f;
-    const float srevoDownPos 0.1f;
+    const float servoupPos = 0.0f;
+    const float servoDownPos = 0.1f;
 
 
 
@@ -209,7 +209,7 @@ switch (robot_step) {
         enable_motors = 1;
         if (!servo1.isEnabled())
         servo1.enable();
-        servo_input = srevoDownPos;
+        servo_input = servoDownPos;
         // Transition: 
         if (true){ // old if (mechanical_button.read()) {
             printf("Transition to Step: STFollow\n");
@@ -226,7 +226,7 @@ switch (robot_step) {
         // linefollower to motor:
         motor_left.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
         motor_right.setVelocity(lineFollower.getRightWheelVelocity());
-        servo_input = srevoDownPos;
+        servo_input = servoDownPos;
 
         
         //linesensor
