@@ -104,8 +104,8 @@ int main()
 
         // minimal pulse width and maximal pulse width obtained from the servo calibration process
     // futuba HS-5065MG
-    const float servo1_ang_min = 0.0150f; // carefull, these values might differ from servo to servo
-    const float servo1_ang_max = 0.1150f;
+    const float servo1_ang_min = 0.035f; // carefull, these values might differ from servo to servo
+    const float servo1_ang_max = 0.120f;
 
 
 
