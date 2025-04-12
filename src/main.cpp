@@ -178,9 +178,7 @@ switch (robot_step) {
  
     case RobotStep::ST_OFF: {
         
-        enable_motors = 0;
-        float servo_input = servoupPos; 
-    
+        enable_motors = 0;    
         // Transition: 
         if (!isInFinishRange){ // mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
