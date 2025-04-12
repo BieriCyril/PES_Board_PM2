@@ -41,7 +41,7 @@ int main()
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float par_finishToleranceCM = 15.0f; // cm
-    const float parSpeedStDrive = 0.3f;
+    const float parSpeedStDrive = 0.1f;
     const int printcycle = 1000;
     const int pulluptime = 1000;
     const bool servocalibmode = true;
@@ -82,7 +82,7 @@ int main()
     // 5v   Rot
     // gnd schwarz
 
-    const float bar_dist = 0.1f; // distance from wheel axis to leds on sensor bar / array in meters
+    const float bar_dist = 0.13f; // distance from wheel axis to leds on sensor bar / array in meters
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
     float angle = 0.0f;
     const float d_wheel = 0.04f; // wheel radius in meters
@@ -91,7 +91,7 @@ int main()
     const float Kp_nl = 1.0f * 17.0f;
 
     LineFollower lineFollower(PB_9, PB_8, bar_dist, d_wheel, b_wheel, motor_right.getMaxPhysicalVelocity());
-    lineFollower.setMaxWheelVelocityRPS(1.0f);
+    lineFollower.setMaxWheelVelocityRPS(parSpeedStDrive);
     lineFollower.setRotationalVelocityGain(Kp, Kp_nl);
 
 
