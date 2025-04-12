@@ -47,6 +47,9 @@ int main()
     const int pulluptime = 1000;
     const bool servocalibmode = true;
 
+    const float servoupPos 0.0f;
+    const float srevoDownPos 0.1f;
+
 
 
     //- define objects:
@@ -100,7 +103,6 @@ int main()
     bool reqMoveServoDown;
     bool reqMoveServoUp;
     Servo servo1(PB_D0);
-    float servotar
 
         // minimal pulse width and maximal pulse width obtained from the servo calibration process
     // futuba HS-5065MG
@@ -119,7 +121,7 @@ int main()
     }
 
     servo1.setMaxAcceleration(0.3f);
-    float servo_input = 0.0f;
+    float servo_input = servoupPos;
 
 
 // set up states for state machine
@@ -193,7 +195,7 @@ switch (robot_step) {
     case RobotStep::ST_OFF: {
         
         enable_motors = 0;
-        float servo_input = 0.0f; 
+        float servo_input = servoupPos; 
     
         // Transition: 
         if (!isInFinishRange){ // mechanical_button.read()) {
@@ -207,7 +209,7 @@ switch (robot_step) {
         enable_motors = 1;
         if (!servo1.isEnabled())
         servo1.enable();
-        servotar = 0.0f;
+        servo_input = srevoDownPos;
         // Transition: 
         if (true){ // old if (mechanical_button.read()) {
             printf("Transition to Step: STFollow\n");
@@ -224,6 +226,7 @@ switch (robot_step) {
         // linefollower to motor:
         motor_left.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
         motor_right.setVelocity(lineFollower.getRightWheelVelocity());
+        servo_input = srevoDownPos;
 
         
         //linesensor
@@ -269,9 +272,8 @@ switch (robot_step) {
         // Backward pull-up logic
         enable_motors = 0;   //-motoroff!
         reqMoveServoUp = true;
-        float servo_input = servotar;
+        servo_input = servoupPos;
         tmrPullup.start();
-        servotar = 0.5f;
         // Transition: 
         if (tmrPullup.read_ms() >= pulluptime) { 
             robot_step = RobotStep::ST_DRIVE;
@@ -332,7 +334,7 @@ switch (robot_step) {
             switch (robot_step) {
                 case RobotStep::ST_OFF:       printf("OFF\n"); break;
                 case RobotStep::ST_INIT:      printf("INIT\n"); break;
-                case RobotStep::ST_FOLLOW:      printf("FIND\n"); break;
+                case RobotStep::ST_FOLLOW:      printf("FOLLOW\n"); break;
                 case RobotStep::ST_DRIVE:     printf("DRIVE\n"); break;
                 case RobotStep::ST_PULLUP:    printf("PULLUP\n"); break;
                 case RobotStep::ST_DROPDOWN:   printf("DROPDOWNS\n"); break;
@@ -356,7 +358,7 @@ switch (robot_step) {
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("Ultrasonic Position %f\n", us_distance_cm);
-            printf("Servo Setpoint %d\n", servo_input);
+            printf("Servo Setpoint %f\n", servo_input);
             printf("Cycle Time: %d", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
