@@ -100,7 +100,7 @@ int main()
     bool reqMoveServoDown;
     bool reqMoveServoUp;
     Servo servo1(PB_D0);
-    const float servotar = 0.5f;
+    float servotar
 
         // minimal pulse width and maximal pulse width obtained from the servo calibration process
     // futuba HS-5065MG
@@ -207,6 +207,7 @@ switch (robot_step) {
         enable_motors = 1;
         if (!servo1.isEnabled())
         servo1.enable();
+        servotar = 0.0f;
         // Transition: 
         if (true){ // old if (mechanical_button.read()) {
             printf("Transition to Step: STFollow\n");
@@ -270,6 +271,7 @@ switch (robot_step) {
         reqMoveServoUp = true;
         float servo_input = servotar;
         tmrPullup.start();
+        servotar = 0.5f;
         // Transition: 
         if (tmrPullup.read_ms() >= pulluptime) { 
             robot_step = RobotStep::ST_DRIVE;
