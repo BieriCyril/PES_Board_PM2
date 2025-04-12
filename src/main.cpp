@@ -41,7 +41,7 @@ int main()
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float par_finishToleranceCM = 15.0f; // cm
-    const float parSpeedStDrive = 1.0f;
+    const float parSpeedStDrive = 0.3f;
     const int printcycle = 1000;
     const int pulluptime = 1000;
     const bool servocalibmode = true;
@@ -172,7 +172,8 @@ enum RobotSubStep {
 
 bool edgeDetRope;
 bool outFallingEdgeRope;
-bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) & (us_distance_cm > 1.0f);
+bool isfalse = false;
+bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) & (us_distance_cm > 1.0f) and isfalse;
 
 // cycle edge
 outFallingEdgeRope = !mechanical_RopeDet.read() & edgeDetRope;
