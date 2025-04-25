@@ -47,7 +47,7 @@ int main()
     const int pulluptime = 1000;
 
     const float servoupPos = 0.0f;
-    const float servoDownPos = 0.1f;
+    const float servoDownPos = 0.27f;
     bool isfalse = false;
     bool istrue = true; 
 
