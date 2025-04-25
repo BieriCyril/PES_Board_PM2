@@ -41,8 +41,9 @@ int main()
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float parSpeedStDrive = 0.3f;
     const float parSpeedStFollow = 0.3f;
-    const int printcycle = 1000;
-    const int pulluptime = 1000;
+    const int printcycle = 1000; // 1 sec
+    const int pulluptime = 1000; // 1 sec
+    const int totaltimecheckstop = 30000; // 30 sec
 
     const float servoupPos = 0.0f;
     const float servoDownPos = 0.27f;
@@ -124,6 +125,7 @@ enum RobotSubStep {
     Timer print_timer;
     Timer main_task_timer;   
     Timer tmrPullup;   // delay to pullup the linefollower
+    Timer tmrtotalTime;   // delay to pullup the linefollower
     print_timer.start();
     main_task_timer.start();
     const int main_task_period_ms = 20;
@@ -145,7 +147,7 @@ bool outRisingEdgeRope = (prevRopeDet == 0 and currentRopeDet == 1);
 prevRopeDet = currentRopeDet; // store for next cycle
 
 
-bool isInFinishRange = outRisingEdgeRope && (robot_step == ST_DRIVE); // ensure after rising edge
+bool isInFinishRange = outRisingEdgeRope && (robot_step == ST_DRIVE) && (tmrtotalTime.read_ms() >= totaltimecheckstop); // ensure after rising edge
 
 //- servo:
 servo1.setPulseWidth(servo_input);
@@ -236,6 +238,7 @@ switch (robot_step) {
         enable_motors = 0;   //-motoroff!
         servo_input = servoupPos;
         tmrPullup.start();
+        tmrtotalTime.start();
         // Transition: 
         if (tmrPullup.read_ms() >= pulluptime) { 
             robot_step = RobotStep::ST_DRIVE;
