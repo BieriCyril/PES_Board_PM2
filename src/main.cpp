@@ -9,7 +9,6 @@
 
 #include "DebounceIn.h" 
 #include "DCMotor.h" 
-#include "UltrasonicSensor.h" 
 #include "DigitalIn.h" 
 #include "FastPWM.h" 
 #include "Servo.h"
@@ -40,7 +39,6 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
-    const float par_finishToleranceCM = 15.0f; // cm
     const float parSpeedStDrive = 0.3f;
     const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000;
@@ -48,8 +46,6 @@ int main()
 
     const float servoupPos = 0.0f;
     const float servoDownPos = 0.27f;
-    bool isfalse = false;
-    bool istrue = true; 
 
 
 
@@ -57,7 +53,6 @@ int main()
     DigitalIn mechanical_button(PC_6); // belegung siehe foto cyril
     DigitalIn mechanical_RopeDet(PC_5); // belegung siehe foto cyril
     DigitalOut enable_motors(PB_15); 
-    UltrasonicSensor us_sensor(PB_D3);
     
     //DC Motoren 
     DCMotor motor_right(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
@@ -67,8 +62,7 @@ int main()
 
     //- parameterize objects:    
     mechanical_button.mode(PullUp);  
-    mechanical_RopeDet.mode(PullUp);  
-    float us_distance_cm = 0.0f;   
+    mechanical_RopeDet.mode(PullUp);
     //- actors
     //motor_right.enableMotionPlanner(); // enable the motion planner for smooth movement 
     motor_right.setMaxAcceleration(motor_right.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration 
@@ -142,20 +136,16 @@ enum RobotSubStep {
  
         if (do_execute_main_task) {
  
-            led1 = 1;
- 
-            // read us sensor distance, only valid measurements will update us_distance_cm
-            const float us_distance_cm_periphery = us_sensor.read();
-            if (us_distance_cm_periphery > 0.0f) {
-                us_distance_cm = us_distance_cm_periphery;
-            }            
-
-bool isInFinishRange = (us_distance_cm < par_finishToleranceCM) and (us_distance_cm > 1.0f) and isfalse;
+            led1 = 1;           
 
 static bool prevRopeDet = mechanical_RopeDet.read(); //- init by sensor value
 bool currentRopeDet = mechanical_RopeDet.read();
 bool outFallingEdgeRope = (prevRopeDet == 1 and currentRopeDet == 0);
+bool outRisingEdgeRope = (prevRopeDet == 0 and currentRopeDet == 1);
 prevRopeDet = currentRopeDet; // store for next cycle
+
+
+bool isInFinishRange = outRisingEdgeRope && (robot_step == ST_DRIVE); // ensure after rising edge
 
 //- servo:
 servo1.setPulseWidth(servo_input);
@@ -281,7 +271,6 @@ switch (robot_step) {
             // reset variables and objects
             led1 = 0;
             enable_motors = 0;
-            us_distance_cm = 0.0f;
             motor_left.setMotionPlanerPosition(0.0f);
             motor_left.setMotionPlanerVelocity(0.0f);
             //motor_left.enableMotionPlanner();
@@ -326,7 +315,6 @@ switch (robot_step) {
             printf("ANGLE: %f\n", angle);
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
-            printf("Ultrasonic Position %f\n", us_distance_cm);
             printf("Servo Setpoint %f\n", servo_input);
             printf("Cycle Time: %lld", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
             // Reset the print timer
