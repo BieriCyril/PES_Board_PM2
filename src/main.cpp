@@ -41,7 +41,7 @@ int main()
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float par_finishToleranceCM = 15.0f; // cm
-    const float parSpeedStDrive = 0.1f;
+    const float parSpeedStDrive = 0.3f;
     const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000;
     const int pulluptime = 1000;
@@ -59,12 +59,7 @@ int main()
     DigitalOut enable_motors(PB_15); 
     UltrasonicSensor us_sensor(PB_D3);
     
-    //DC Motoren kabel und Pin Belegung
-    //Encoder A -> gelb
-    //Encoder B -> grün
-    //M+ -> Braun
-    //M- -> Blau
-    //GND -> Weiss
+    //DC Motoren 
     DCMotor motor_right(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DCMotor motor_left(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DigitalOut user_led(LED1);
@@ -81,11 +76,6 @@ int main()
     motor_left.setMaxAcceleration(motor_left.getMaxAcceleration() * 0.5f); // limit max. acceleration to half of the default acceleration   
 
     //- Line following:
-
-    // SCL-PB8 Orange
-    // SDAPB9  Grau
-    // 5v   Rot
-    // gnd schwarz
 
     const float bar_dist = 0.13f; // distance from wheel axis to leds on sensor bar / array in meters
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
