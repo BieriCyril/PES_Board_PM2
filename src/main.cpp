@@ -142,8 +142,8 @@ enum RobotSubStep {
 
 static bool prevRopeDet = mechanical_RopeDet.read(); //- init by sensor value
 bool currentRopeDet = mechanical_RopeDet.read();
-bool outFallingEdgeRope = (prevRopeDet == 1 and currentRopeDet == 0);
-bool outRisingEdgeRope = (prevRopeDet == 0 and currentRopeDet == 1);
+bool outFallingEdgeRope = (prevRopeDet == 1 && currentRopeDet == 0);
+bool outRisingEdgeRope = (prevRopeDet == 0 && currentRopeDet == 1);
 prevRopeDet = currentRopeDet; // store for next cycle
 
 
@@ -224,6 +224,7 @@ switch (robot_step) {
             robot_step = RobotStep::ST_OFF;
             printf("Transition to Step: StOff\n");
             printf("Finished!!! ");
+            tmrtotalTime.reset();
         
             if(REMARK){
             robot_substep = RobotSubStep::SUB_INTERMED;
@@ -238,13 +239,13 @@ switch (robot_step) {
         enable_motors = 0;   //-motoroff!
         servo_input = servoupPos;
         tmrPullup.start();
-        tmrtotalTime.start();
         // Transition: 
         if (tmrPullup.read_ms() >= pulluptime) { 
             robot_step = RobotStep::ST_DRIVE;
             printf("Transition to Step: StDrive\n");
             printf("Pulluptimerdone\n");  
             tmrPullup.reset();
+            tmrtotalTime.start();
         }
         break;
     }
@@ -319,7 +320,7 @@ switch (robot_step) {
             printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
             printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("Servo Setpoint %f\n", servo_input);
-            printf("Cycle Time: %lld", duration_cast<milliseconds>(main_task_timer.elapsed_time()).count());
+            printf("Total Time: %lld", duration_cast<milliseconds>(tmrtotalTime.elapsed_time()).count());
             // Reset the print timer
             print_timer.reset();
         }
