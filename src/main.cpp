@@ -29,8 +29,9 @@ void toggle_do_execute_main_fcn(); // custom function which is getting executed 
 
                                    // main runs as an own thread
 
-bool REMARK = false; //- remark flag for enigneering       
+bool REMARK = false; //- remark flag for enigneering      
 
+bool oncethrough = false;
 
 int main() 
 { 
@@ -42,11 +43,11 @@ int main()
     const float parSpeedStDrive = 0.3f;
     const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000; // 1 sec
-    const int pulluptime = 1000; // 1 sec
+    const int pulluptime = 2000; // 1 sec
     const int totaltimecheckstop = 30000; // 30 sec
 
-    const float servoupPos = 0.0f;
-    const float servoDownPos = 0.27f;
+    const float servoupPos = 0.45f;
+    const float servoDownPos = 0.76f;
 
 
 
@@ -74,7 +75,6 @@ int main()
 
     const float bar_dist = 0.13f; // distance from wheel axis to leds on sensor bar / array in meters
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
-    float angle = 0.0f;
     const float d_wheel = 0.04f; // wheel radius in meters
     const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
     const float Kp = 1.0f * 3.0f;
@@ -146,6 +146,12 @@ bool outFallingEdgeRope = (prevRopeDet == 1 && currentRopeDet == 0);
 bool outRisingEdgeRope = (prevRopeDet == 0 && currentRopeDet == 1);
 prevRopeDet = currentRopeDet; // store for next cycle
 
+if (outFallingEdgeRope){
+    printf("Falling Edge");
+}
+if (outRisingEdgeRope){
+    printf("Rising Edge");
+}
 
 bool isInFinishRange = outRisingEdgeRope && (robot_step == ST_DRIVE) && (tmrtotalTime.read_ms() >= totaltimecheckstop); // ensure after rising edge
 
@@ -161,7 +167,7 @@ switch (robot_step) {
         
         enable_motors = 0;    
         // Transition: 
-        if (!isInFinishRange){ // mechanical_button.read()) {
+        if (!isInFinishRange &! oncethrough){ // mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
         break;
@@ -185,7 +191,7 @@ switch (robot_step) {
         // Some logic for finding target or condition
 
         //motors
-        enable_motors = 1;  
+        enable_motors = currentRopeDet == 1;  
         // linefollower to motor:
         motor_left.setVelocity(lineFollower.getLeftWheelVelocity()) ; 
         motor_right.setVelocity(lineFollower.getRightWheelVelocity());
@@ -196,7 +202,6 @@ switch (robot_step) {
 
         // only update sensor bar angle if a led is triggered
         if (sensorBar.isAnyLedActive())
-        angle = sensorBar.getAvgAngleRad();
             
         // Transition: 
         if (outFallingEdgeRope) { 
@@ -225,6 +230,7 @@ switch (robot_step) {
             printf("Transition to Step: StOff\n");
             printf("Finished!!! ");
             tmrtotalTime.reset();
+            oncethrough = true;
         
             if(REMARK){
             robot_substep = RobotSubStep::SUB_INTERMED;
@@ -271,6 +277,8 @@ switch (robot_step) {
         // the following code block gets executed only once
         if (do_reset_all_once) {
             do_reset_all_once = false;
+            oncethrough = false;
+            tmrtotalTime.reset();
 
             // reset variables and objects
             led1 = 0;
@@ -314,11 +322,11 @@ switch (robot_step) {
                 default:                         printf("Unknown Substep\n"); break;
             }
 
-            printf("DC Motor RIGHT Rotations: %f\n", motor_right.getRotation());
-            printf("DC Motor LEFT Rotations: %f\n", motor_left.getRotation());
-            printf("ANGLE: %f\n", angle);
-            printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
-            printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
+            //printf("DC Motor RIGHT Rotations: %f\n", motor_right.getRotation());
+            //printf("DC Motor LEFT Rotations: %f\n", motor_left.getRotation());
+            //printf("ANGLE: %f\n", angle);
+            //printf("linefolowwer rigth: %f\n", lineFollower.getRightWheelVelocity());
+            //printf("linefolowwer left: %f\n", lineFollower.getLeftWheelVelocity());
             printf("Servo Setpoint %f\n", servo_input);
             printf("Total Time: %lld", duration_cast<milliseconds>(tmrtotalTime.elapsed_time()).count());
             // Reset the print timer
