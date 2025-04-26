@@ -167,7 +167,7 @@ switch (robot_step) {
         
         enable_motors = 0;    
         // Transition: 
-        if (!isInFinishRange &! oncethrough){ // mechanical_button.read()) {
+        if (!isInFinishRange && !oncethrough){ // mechanical_button.read()) {
             robot_step = RobotStep::ST_INIT;
         }
         break;
