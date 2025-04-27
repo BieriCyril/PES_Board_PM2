@@ -103,7 +103,6 @@ enum RobotStep {
     ST_FOLLOW, 
     ST_DRIVE, 
     ST_PULLUP, 
-    ST_DROPDOWN
 } robot_step = RobotStep::ST_OFF; // init step:
 
 
@@ -255,17 +254,6 @@ switch (robot_step) {
         }
         break;
     }
-    
-    case RobotStep::ST_DROPDOWN: {
-        // Final action logic (e.g., dropping something down)
-        enable_motors = 1;  
-    
-        // Transition: 
-        if (REMARK) { 
-            robot_step = RobotStep::ST_OFF;
-        }
-        break;
-    }  
      
     default: {
 
@@ -307,7 +295,6 @@ switch (robot_step) {
                 case RobotStep::ST_FOLLOW:      printf("FOLLOW\n"); break;
                 case RobotStep::ST_DRIVE:     printf("DRIVE\n"); break;
                 case RobotStep::ST_PULLUP:    printf("PULLUP\n"); break;
-                case RobotStep::ST_DROPDOWN:   printf("DROPDOWNS\n"); break;
                 default:                    printf("Unknown\n"); break;
             }
             printf("Substep: ");
