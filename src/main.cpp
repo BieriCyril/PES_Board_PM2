@@ -41,13 +41,13 @@ int main()
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float parSpeedStDrive = 0.5f;
-    const float parSpeedStFollow = 0.3f;
+    const float parSpeedStFollow = 0.6f;
     const int printcycle = 1000; // 1 sec
     const int pulluptime = 2000; // 1 sec
     const int totaltimecheckstop = 30000; // 30 sec
 
     const float servoupPos = 0.3f;
-    const float servoDownPos = 0.61f;
+    const float servoDownPos = 0.65f;
 
 
 
@@ -73,10 +73,10 @@ int main()
 
     //- Line following:
 
-    const float bar_dist = 0.13f; // distance from wheel axis to leds on sensor bar / array in meters
+    const float bar_dist = 0.115f; // distance from wheel axis to leds on sensor bar / array in meters
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
     const float d_wheel = 0.04f; // wheel radius in meters
-    const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
+    const float b_wheel = 0.20f;          // wheelbase, distance from wheel to wheel in meter
     const float Kp = 1.0f * 3.0f;
     const float Kp_nl = 1.0f * 17.0f;
 
