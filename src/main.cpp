@@ -40,14 +40,14 @@ int main()
     const float voltage_max = 12.0f; // maximum voltage of battery packs, adjust this to // 6.0f V if you only use one battery pack // motor M3                                       
     const float gear_ratio_ALL = 78.125f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
-    const float parSpeedStDrive = 0.3f;
+    const float parSpeedStDrive = 0.5f;
     const float parSpeedStFollow = 0.3f;
     const int printcycle = 1000; // 1 sec
     const int pulluptime = 2000; // 1 sec
     const int totaltimecheckstop = 30000; // 30 sec
 
-    const float servoupPos = 0.45f;
-    const float servoDownPos = 0.76f;
+    const float servoupPos = 0.3f;
+    const float servoDownPos = 0.61f;
 
 
 
@@ -217,7 +217,12 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        motor_right.setVelocity(parSpeedStDrive); 
+        if (!(tmrtotalTime.read_ms() >= 20000) && (tmrtotalTime.read_ms() > 6000)){
+        motor_right.setVelocity((parSpeedStDrive + 0.25f)); 
+        }
+        else {
+        motor_right.setVelocity(parSpeedStDrive);
+        }
         motor_left.setVelocity(parSpeedStDrive);
         //- servo:
         servo_input = servoupPos;
