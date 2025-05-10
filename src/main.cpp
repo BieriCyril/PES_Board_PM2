@@ -216,8 +216,8 @@ switch (robot_step) {
         //motors
         enable_motors = 1;  
         // linefollower to motor:
-        if (!(tmrtotalTime.read_ms() >= 20000) && (tmrtotalTime.read_ms() > 6000)){
-        motor_right.setVelocity((parSpeedStDrive + 0.05f)); 
+        if (!(tmrtotalTime.read_ms() >= 15000) && (tmrtotalTime.read_ms() > 6000)){
+        motor_right.setVelocity((parSpeedStDrive + 0.30f)); 
         }
         else {
         motor_right.setVelocity(parSpeedStDrive);
