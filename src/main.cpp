@@ -41,7 +41,7 @@ int main()
     const float gear_ratio_ALL =  100.00f; // gear ratio 
     const float MOTOR_CONSTANT_ALL = 180.0f / 12.0f;  // motor constant [rpm/V]  // it is assumed that only one motor is available, there fore  // we use the pins from M1, so you can leave it connected to M1 
     const float parSpeedStDrive = 0.5f;
-    const float parSpeedStFollow = 0.6f;
+    const float parSpeedStFollow = 0.5f;
     const int printcycle = 1000; // 1 sec
     const int pulluptime = 2000; // 1 sec
     const int totaltimecheckstop = 30000; // 30 sec
@@ -58,7 +58,7 @@ int main()
     
     //DC Motoren 
     DCMotor motor_right(PB_PWM_M3, PB_ENC_A_M3, PB_ENC_B_M3, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
-    DCMotor motor_left(PB_PWM_M2, PB_ENC_A_M2, PB_ENC_B_M2, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
+    DCMotor motor_left(PB_PWM_M1, PB_ENC_A_M1, PB_ENC_B_M1, gear_ratio_ALL, MOTOR_CONSTANT_ALL, voltage_max); 
     DigitalOut user_led(LED1);
     DigitalOut led1(PB_9); // belegung siehe foto cyril
 
@@ -76,7 +76,7 @@ int main()
     const float bar_dist = 0.115f; // distance from wheel axis to leds on sensor bar / array in meters
     SensorBar sensorBar(PB_9, PB_8, bar_dist);
     const float d_wheel = 0.04f; // wheel radius in meters
-    const float b_wheel = 0.20f;          // wheelbase, distance from wheel to wheel in meter
+    const float b_wheel = 0.17f;          // wheelbase, distance from wheel to wheel in meter
     const float Kp = 1.0f * 3.0f;
     const float Kp_nl = 1.0f * 17.0f;
 
@@ -217,7 +217,7 @@ switch (robot_step) {
         enable_motors = 1;  
         // linefollower to motor:
         if (!(tmrtotalTime.read_ms() >= 20000) && (tmrtotalTime.read_ms() > 6000)){
-        motor_right.setVelocity((parSpeedStDrive + 0.25f)); 
+        motor_right.setVelocity((parSpeedStDrive + 0.05f)); 
         }
         else {
         motor_right.setVelocity(parSpeedStDrive);
